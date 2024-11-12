@@ -4,7 +4,13 @@
 Creates a high-performance API for streaming, storing, and querying sensor data using FastAPI and TimescaleDB for efficient time-series data storage.
 
 
-To run the application, use uvicorn CLI with the following command:
+Database: 
+Uses Neon serverless Postgres: (account needed)
+
+https://console.neon.tech
+
+
+To run the application, use uvicorn CLI with the following command in the "src" directory:
 
 uvicorn main:app --host 0.0.0.0 --port 8080
 Once the server is running, you can access the API documentation and test the endpoints directly in your browser:

@@ -1,0 +1,74 @@
+Create the project structure.
+
+Create the following directory structure to organize your project files:
+
+timescale_fastapi
+├── src/
+│ ├── database/
+│ │ └── postgres.py
+│ ├── models/
+│ │ └── product_models.py
+│ ├── routes/
+│ │ └── product_routes.py
+│ └── main.py
+├── .env  
+├── .python-version
+├── README.md  
+├── pyproject.toml  
+└── uv.lock
+
+
+# Setting up your Database:
+In this section, you will set up the TimescaleDB extension using Neon's console, add the database's schema, and create the database connection pool and lifecycle management logic in FastAPI. Optionally, you can also add some mock data to test your API endpoints.
+
+Given TimescaleDB is an extension on top of vanilla Postgres, you must first add the extension by running the following SQL in the SQL Editor tab of the Neon console.
+
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+
+Next, you will add the necessary tables to your database with:
+
+CREATE TABLE IF NOT EXISTS sensors (
+    sensor_id SERIAL PRIMARY KEY,
+    sensor_type VARCHAR(50) NOT NULL,
+    description VARCHAR(255),
+    location VARCHAR(255)
+);
+CREATE TABLE IF NOT EXISTS sensor_data (
+    sensor_id INT REFERENCES sensors(sensor_id),
+    value FLOAT NOT NULL,
+    time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY(sensor_id, time)
+);
+
+One of TimescaleDB's core features is Hypertables, which is an optimized abstraction for handling large time-series data. It partitions your data into chunks based on time, allowing efficient storage, querying, and performance at scale. By converting the sensor_data table into a hypertable, TimescaleDB will manage the underlying chunking and indexing automatically.
+
+To convert the sensor_data table into a hypertable, use the following command:
+
+SELECT create_hypertable('sensor_data', 'time');
+
+# Now that the schema is ready, you can optionally populate the database with some sample sensor data. First, insert the metadata for two sensors:
+
+INSERT INTO sensors (sensor_type, description, location)
+VALUES
+    ('temperature', 'Outdoor temperature sensor', 'Backyard'),
+    ('humidity', 'Indoor humidity sensor', 'Living Room');
+
+
+# Next, generate time-series data for the past 14 days with one-minute intervals for both sensors. Here's how you can insert random data for each sensor using Timescales generate_series() feature.
+
+INSERT INTO sensor_data (sensor_id, value, time)
+SELECT 1 as sensor_id,
+       15 + random() * 15 AS value,
+       generate_series(
+           now() - INTERVAL '14 days',
+           now(),
+           INTERVAL '1 minute'
+       ) AS time;
+INSERT INTO sensor_data (sensor_id, value, time)
+SELECT 2 as sensor_id,
+       40 + random() * 20 AS value,
+       generate_series(
+           now() - INTERVAL '14 days',
+           now(),
+           INTERVAL '1 minute'
+       ) AS time;
