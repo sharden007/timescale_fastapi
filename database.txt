@@ -72,3 +72,8 @@ SELECT 2 as sensor_id,
            now(),
            INTERVAL '1 minute'
        ) AS time;
+
+
+        Make sure to replace the placeholders (user, password, 
+        your-neon-hostname, etc.) with your actual Neon database 
+        credentials, which are available in the console.
