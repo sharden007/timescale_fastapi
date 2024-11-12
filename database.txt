@@ -18,7 +18,8 @@ timescale_fastapi
 └── uv.lock
 
 
-# Setting up your Database:
+# Setting up your Database: https://console.neon.tech/
+
 In this section, you will set up the TimescaleDB extension using Neon's console, add the database's schema, and create the database connection pool and lifecycle management logic in FastAPI. Optionally, you can also add some mock data to test your API endpoints.
 
 Given TimescaleDB is an extension on top of vanilla Postgres, you must first add the extension by running the following SQL in the SQL Editor tab of the Neon console.
