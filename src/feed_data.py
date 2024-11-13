@@ -51,7 +51,7 @@ def send_sensor_data(sensor_id: int):
             print(f"Other error occurred: {err}")
 
         # Wait for 3 seconds before sending the next data point
-        #time.sleep(1)
+        time.sleep(0.3)
 
 if __name__ == "__main__":
     # Define the sensor details

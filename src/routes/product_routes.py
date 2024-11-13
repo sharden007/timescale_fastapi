@@ -2,6 +2,7 @@ from fastapi import HTTPException, Path, Body, APIRouter, Depends
 from database.postgres import get_postgres
 from typing import Union, List
 from asyncpg import Pool
+from typing import List
 from loguru import logger
 from models.product_models import (
     SensorData,
@@ -11,6 +12,54 @@ from models.product_models import (
 )
 
 sensor_router = APIRouter()
+
+# New route to get sensor data bucketed by 1-minute intervals
+@sensor_router.get("/minute_avg/{sensor_id}", response_model=List[SensorData])
+async def get_minute_avg(sensor_id: int = Path(..., description="The ID of the sensor"), db: Pool = Depends(get_postgres)):
+    """
+    Get minute-level average sensor data for a specific sensor.
+    
+    Parameters
+    ----------
+    sensor_id : int
+        The ID of the sensor to query.
+    
+    db : asyncpg.Pool
+        Database connection pool injected by dependency.
+    
+    Returns
+    -------
+    List[SensorData]
+        List of aggregated sensor data, with 1-minute buckets and average values.
+    """
+    
+    query = """
+    SELECT
+        time_bucket('1 minute', time) AS bucket,
+        AVG(value) AS avg_value
+    FROM sensor_data
+    WHERE sensor_id = $1
+    GROUP BY bucket
+    ORDER BY bucket;
+    """
+
+    try:
+        async with db.acquire() as conn:
+            rows = await conn.fetch(query, sensor_id)
+
+        if not rows:
+            raise HTTPException(status_code=404, detail="No data found for this sensor.")
+
+        # Convert the rows into a list of SensorData objects
+        return [
+            SensorData(
+                timestamp=row["bucket"],
+                value=row["avg_value"]
+            ) for row in rows
+        ]
+    except Exception as e:
+        logger.error(f"Error fetching minute-level data for sensor {sensor_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch data.")
 
 
 @sensor_router.post("/sensors")
