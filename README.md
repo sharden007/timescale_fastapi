@@ -9,6 +9,13 @@ Uses Neon serverless Postgres: (account needed)
 
 https://console.neon.tech
 
+Setting up your Database
+In this section, you will set up the TimescaleDB extension using Neon's console, add the database's schema, and create the database connection pool and lifecycle management logic in FastAPI. Optionally, you can also add some mock data to test your API endpoints.
+
+Given TimescaleDB is an extension on top of vanilla Postgres, you must first add the extension by running the following SQL in the SQL Editor tab of the Neon console.
+
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+
 
 To run the application, use uvicorn CLI with the following command in the "src" directory:
 
@@ -16,9 +23,9 @@ uvicorn main:app --host 0.0.0.0 --port 8080
 Once the server is running, you can access the API documentation and test the endpoints directly in your browser:
 
 Interactive API Docs (Swagger UI):
-Visit http://127.0.0.1:8080/docs to access the automatically generated API documentation where you can test the endpoints.
+Visit http://localhost:8000/docs to access the automatically generated API documentation where you can test the endpoints.
 Alternative Docs (ReDoc):
-Visit http://127.0.0.1:8080/redoc for another style of API documentation.
+Visit http://localhost:8000/redoc for another style of API documentation.
 
 
 # Testing the API
@@ -28,8 +35,8 @@ Retrieve sensor statistics for pre-generated data (optional).
 
 If you followed the optional data generation steps, you can retrieve daily statistics for the pre-generated sensors:
 
-http://127.0.0.1:8080/daily_avg/1
-http://127.0.0.1:8080/daily_avg/2
+http://localhost:8000/daily_avg/1
+http://localhost:8000/daily_avg/2
 
 These commands will return the daily statistics (average, min, max, median, and IQR) for the pre-generated temperature and humidity sensors over the last 7 days.
 
@@ -37,7 +44,7 @@ These commands will return the daily statistics (average, min, max, median, and 
 
 Start by creating a new sensor (e.g., a temperature sensor for the living room):
 
-http://127.0.0.1:8080/sensors sensor_type="temperature" description="Living room temperature sensor" location="Living Room"
+http://localhost:8000/sensors sensor_type="temperature" description="Living room temperature sensor" location="Living Room"
 You should see a response confirming the creation of the sensor with a unique ID:
 
 {
@@ -48,7 +55,7 @@ Stream a single sensor data point.
 
 Stream a single data point for the newly created sensor (sensor_id = 3):
 
-http POST http://127.0.0.1:8080/sensor_data/3 value:=23.5 timestamp="2024-10-12T14:29:00"
+http POST http://localhost:8000/sensor_data/3 value:=23.5 timestamp="2024-10-12T14:29:00"
 You should get a response indicating success:
 
 {
@@ -58,7 +65,7 @@ Stream a batch of sensor data.
 
 You can also stream multiple sensor data points in a batch for the same sensor:
 
-http POST http://127.0.0.1:8080/sensor_data/3 data:='[{"value": 22.5, "timestamp": "2024-10-12T14:30:00"}, {"value": 22.7, "timestamp": "2024-10-12T14:31:00"}]'
+http POST http://localhost:8000/sensor_data/3 data:='[{"value": 22.5, "timestamp": "2024-10-12T14:30:00"}, {"value": 22.7, "timestamp": "2024-10-12T14:31:00"}]'
 This will send two data points to the sensor. The response will confirm successful streaming of the batch data:
 
 {
@@ -68,7 +75,7 @@ Retrieve daily statistics for the new sensor.
 
 After streaming the sensor data, you can retrieve the daily statistics for the new sensor (sensor_id = 3):
 
-http GET http://127.0.0.1:8080/daily_avg/3
+http GET http://localhost:8000/daily_avg/3
 This will return daily statistics (average, min, max, median, and IQR) for the new sensor over the last 7 days:
 
 [
