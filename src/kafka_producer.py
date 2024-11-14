@@ -35,7 +35,7 @@ def send_sensor_data(sensor_id):
 async def produce_sensor_data(sensor_id):
     while True:
         send_sensor_data(sensor_id)
-        await asyncio.sleep(30)  # Produce data every 30 seconds
+        await asyncio.sleep(3)  # Produce data every 3 seconds
 
 if __name__ == "__main__":
     sensor_id = 1  # Replace with actual sensor ID

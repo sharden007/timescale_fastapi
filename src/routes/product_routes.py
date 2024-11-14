@@ -61,7 +61,31 @@ async def get_minute_avg(sensor_id: int = Path(..., description="The ID of the s
         logger.error(f"Error fetching minute-level data for sensor {sensor_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch data.")
 
+# Route to retrieve all sensor data
+@sensor_router.get("/sensors/all", response_model=List[SensorData])
+async def get_all_sensor_data(db: Pool = Depends(get_postgres)):
+    query = """
+    SELECT sensor_id, value, time AS timestamp 
+    FROM sensor_data;
+    """
+    try:
+        async with db.acquire() as conn:
+            rows = await conn.fetch(query)
+            if not rows:
+                raise HTTPException(status_code=404, detail="No sensor data found.")
+            
+            # Convert rows into a list of SensorData objects
+            sensor_data_list = [
+                SensorData(sensor_id=row['sensor_id'], value=row['value'], timestamp=row['timestamp'])
+                for row in rows
+            ]
+            return sensor_data_list
 
+    except Exception as e:
+        logger.error(f"Error fetching all sensor data: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch sensor data.")
+    
+    
 @sensor_router.post("/sensors")
 async def create_sensor(
     sensor: SensorCreate = Body(...), db: Pool = Depends(get_postgres)
