@@ -91,3 +91,22 @@ This will return daily statistics (average, min, max, median, and IQR) for the n
   }
 ]
 By following these steps, you can easily create sensors, stream sensor data, and query statistics from your API. For sensors with pre-generated data, you can retrieve the statistics immediately. For new sensors, you can stream data and retrieve their daily stats dynamically.
+
+
+
+KAFKA:
+
+After making changes ot kafka-run-class.bat file (if error input line too long) 
+run in Powershell Terminal: $ .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties   - to start zookeeper
+
+Then in another powershell Terminal: (start Kafka)
+
+
+# After making these changes:
+- Run your producer (python kafka_producer.py) to generate sensor data.
+Run your consumer (python kafka_consumer.py) and monitor for any errors.
+
+Check your PostgreSQL database to ensure that records are being inserted correctly with proper timestamps.
+
+SELECT * FROM public.sensor_data
+
