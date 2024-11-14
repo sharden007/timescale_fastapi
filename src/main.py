@@ -1,3 +1,5 @@
+# run using: $ uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from database.postgres import init_postgres, close_postgres

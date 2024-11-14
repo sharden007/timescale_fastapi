@@ -3,6 +3,8 @@
 
 Creates a high-performance API for streaming, storing, and querying sensor data using FastAPI and TimescaleDB for efficient time-series data storage.
 
+# Run main.py:
+$ uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 
 Here is a **high-level overview** of the necessary steps to run the code for producing sensor data, consuming it from Kafka, and inserting it into a PostgreSQL database:
 
