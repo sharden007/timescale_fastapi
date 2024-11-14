@@ -4,7 +4,74 @@
 Creates a high-performance API for streaming, storing, and querying sensor data using FastAPI and TimescaleDB for efficient time-series data storage.
 
 
-Database: 
+Here is a **high-level overview** of the necessary steps to run the code for producing sensor data, consuming it from Kafka, and inserting it into a PostgreSQL database:
+
+### **1. Set Up the Environment**
+
+- **Install Required Software**:
+  - Install **Java** (required for Kafka).
+  - Install **Apache Kafka** and extract it to a local directory.
+  - Install **PostgreSQL** as your database.
+  - Install Python packages: `confluent_kafka`, `asyncpg`, `loguru`.
+
+### **2. Start Kafka and Zookeeper**
+
+- Start **Zookeeper**: (run from kafka directory in seperate Powershell terminal)
+  ```bash
+  .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
+  ```
+  
+- Start **Kafka**: (run from kafka directory in seperate Powershell terminal)
+  ```bash
+  .\bin\windows\kafka-server-start.bat .\config\server.properties
+  ```
+
+- Verify Kafka is running by listing topics: ( in new Terminal)
+  ```bash
+  .\bin\windows\kafka-topics.bat --list --bootstrap-server localhost:9092
+  ```
+
+### **3. Set Up PostgreSQL Database**
+
+- Create a PostgreSQL database named `sensor_data_db`.
+  
+- Create a table to store sensor data:
+  ```sql
+  CREATE TABLE sensor_data (
+      id SERIAL PRIMARY KEY,
+      sensor_id INT NOT NULL,
+      value FLOAT NOT NULL,
+      time TIMESTAMP NOT NULL
+  );
+  ```
+
+### **4. Run the Producer Script (`kafka_producer.py`)**
+
+- The producer script (`python kafka_producer.py` [2]) generates random sensor data every 30 seconds and sends it to the Kafka topic `sensor_data`.
+
+- Run the producer script:
+ 
+  python kafka_producer.py
+ 
+
+### **5. Run the Consumer Script (`python kafka_consumer.py`)**
+
+- The consumer script (`kafka_consumer.py` [3]) consumes messages from the Kafka topic `sensor_data`, parses them, converts the timestamp to a `datetime` object, and inserts the data into the local PostgreSQL database.
+
+- Ensure that the consumer script converts the timestamp string to a `datetime` object before inserting it into PostgreSQL.
+
+### **6. Verify Data Insertion**
+
+- After running both scripts, verify that data is being successfully inserted into your PostgreSQL database by querying it:
+
+```sql
+SELECT * FROM sensor_data;
+```
+
+This high-level overview covers all necessary steps to set up, run, and verify the Kafka producer-consumer pipeline with PostgreSQL integration.
+
+
+Database (If not using local DB): 
 Uses Neon serverless Postgres: (account needed)
 
 https://console.neon.tech
